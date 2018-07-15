@@ -1,0 +1,97 @@
+<resources>
+
+    <style name="Widget"/>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="selectedTextStyle">@style/Widget.SelectedItem</item>
+        <item name="selectedTextStyleNoStyle">@style/Widget.SelectedItemNoStyle</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Widget.Label">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/blue_grey_400</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Widget.SelectedItemNoStyle">
+        <item name="android:textColor">@color/blue_grey_700</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:background">@drawable/bg_date_time_no_style</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Widget.SelectedItem">
+        <item name="android:textColor">@color/blue_grey_700</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:background">@drawable/bg_circle_size</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Widget.Size">
+        <item name="android:layout_width">@dimen/product_color_size</item>
+        <item name="android:layout_height">@dimen/product_color_size</item>
+        <item name="android:background">@drawable/bg_circle_size</item>
+        <item name="android:textColor">@drawable/selector_order_text</item>
+        <item name="android:textSize">@dimen/font_size_medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Widget.Color">
+        <item name="android:layout_width">@dimen/product_color_size</item>
+        <item name="android:layout_height">@dimen/product_color_size</item>
+    </style>
+
+    <style name="Widget.DateTime">
+        <item name="android:minWidth">75dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_square_date</item>
+        <item name="android:textColor">@color/csl_date</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">@dimen/spacing_medium</item>
+    </style>
+
+    <style name="ConfirmationTextAppearance" parent="Base.TextAppearance.AppCompat">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ConfirmationTextAppearance.Title">
+        <item name="android:textSize">19sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="ConfirmationTextAppearance.SubTitle">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="ConfirmationTextAppearance.Body">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+
+
+
+
+</resources>

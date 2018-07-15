@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="listener"
+            type="com.test1.OrderDialogFragment.Step1Listener" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText">
+
+        <TextView
+            android:id="@+id/txt_label_size"
+            style="@style/Widget.Label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_big"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:onClick="@{listener::onSizeSelected}"
+            android:text="@string/label_size"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/txt_label_color"
+            style="@style/Widget.Label"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="8dp"
+            android:onClick="@{listener::onSizeSelected}"
+            android:text="@string/label_color"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/size_recycler" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_color_red"
+            style="@style/Widget.Color"
+            android:onClick="@{listener::onColorSelected}"
+            android:src="@color/product_red"
+            app:layout_constraintBottom_toBottomOf="@+id/img_color_yellow"
+            app:layout_constraintLeft_toRightOf="@+id/img_color_yellow"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/img_color_yellow" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_color_yellow"
+            style="@style/Widget.Color"
+            android:onClick="@{listener::onColorSelected}"
+            android:src="@color/product_yellow"
+            app:layout_constraintBottom_toBottomOf="@+id/img_color_purple"
+            app:layout_constraintLeft_toRightOf="@+id/img_color_purple"
+            app:layout_constraintRight_toLeftOf="@+id/img_color_red"
+            app:layout_constraintTop_toTopOf="@+id/img_color_purple" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_color_purple"
+            style="@style/Widget.Color"
+            android:onClick="@{listener::onColorSelected}"
+            android:src="@color/product_purple"
+            app:layout_constraintBottom_toBottomOf="@+id/img_color_blue"
+            app:layout_constraintLeft_toRightOf="@+id/img_color_blue"
+            app:layout_constraintRight_toLeftOf="@+id/img_color_yellow"
+            app:layout_constraintTop_toTopOf="@+id/img_color_blue" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_color_blue"
+            style="@style/Widget.Color"
+            android:onClick="@{listener::onColorSelected}"
+            android:src="@color/product_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/img_color_green"
+            app:layout_constraintLeft_toRightOf="@+id/img_color_green"
+            app:layout_constraintRight_toLeftOf="@+id/img_color_purple"
+            app:layout_constraintTop_toTopOf="@+id/img_color_green" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_color_green"
+            style="@style/Widget.Color"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="16dp"
+            android:onClick="@{listener::onColorSelected}"
+            android:src="@color/product_green"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/img_color_blue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txt_label_color" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/size_recycler"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:clipToPadding="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txt_label_size" />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>
