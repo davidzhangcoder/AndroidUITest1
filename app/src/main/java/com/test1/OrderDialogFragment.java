@@ -81,7 +81,6 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
 
     private OnFragmentInteractionListener mListener;
 
-
     public OrderDialogFragment() {
         // Required empty public constructor
     }
