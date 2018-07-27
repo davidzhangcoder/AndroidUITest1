@@ -27,6 +27,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,9 @@ import com.test1.databinding.FragmentOrderFormBinding;
 import com.test1.databinding.LayoutFormOrderStep1Binding;
 import com.test1.databinding.LayoutFormOrderStep2Binding;
 import com.test1.databinding.LayoutOrderConfirmationBinding;
+import com.test1.model.OrderSelectionValue;
 import com.test1.model.Product;
+import com.test1.model.SizeBean;
 import com.test1.recycler.OnItemSelectedListener;
 import com.test1.recycler.ProductAdapter;
 import com.test1.recycler.ProductItemPaddingDecoration;
@@ -61,18 +64,23 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class OrderDialogFragment extends BottomSheetDialogFragment {
 
+    public static enum STEPS { STEP1 , STEP2 }
+
     private static final String ARG_PRODUCT = "product";
-    public static final String ID_COLOR_SUFFIX = "img_color";
-    public static final String ID_SIZE_SUFFIX = "txt_size";
-    public static final String ID_DATE_SUFFIX = "txt_date";
-    public static final String ID_TIME_SUFFIX = "txt_time";
+
+    private static final String ARG_ORDER_SELECTION_VALUE = "orderSelectionValue";
+
+    private static final String ID_COLOR_SUFFIX = "img_color";
+    private static final String ID_SIZE_SUFFIX = "txt_size";
+    private static final String ID_DATE_SUFFIX = "txt_date";
+    private static final String ID_TIME_SUFFIX = "txt_time";
 
     private List<View> sizeclonedViewList = new ArrayList<View>();
     private List<View> colorclonedViewList = new ArrayList<View>();
     private List<View> dateClonedViewList = new ArrayList<View>();
     private List<View> timeClonedViewList = new ArrayList<View>();
 
-    private View lastSizeSelected;
+//    private View lastSizeSelected;
 
     private Product product;
     private FragmentOrderFormBinding binding;
@@ -80,6 +88,12 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
     private Transition selectedViewTransition;
 
     private OnFragmentInteractionListener mListener;
+
+    private OrderSelectionValue orderSelectionValue;
+
+    private List<SizeBean> sizeBeanList = new ArrayList<SizeBean>();
+
+    private SizeAdapter sizeAdapter;
 
     public OrderDialogFragment() {
         // Required empty public constructor
@@ -91,10 +105,13 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
      *
      * @return A new instance of fragment OrderDialogFragment.
      */
-    public static OrderDialogFragment newInstance(Product product) {
+    public static OrderDialogFragment newInstance(Product product , OrderSelectionValue orderSelectionValue) {
         OrderDialogFragment fragment = new OrderDialogFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PRODUCT, product);
+        args.putSerializable(ARG_ORDER_SELECTION_VALUE , orderSelectionValue);
+        orderSelectionValue.setSteps(STEPS.STEP1);
+        orderSelectionValue.setProduct( product );
         fragment.setArguments(args);
         return fragment;
     }
@@ -104,19 +121,38 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             product = (Product) getArguments().getSerializable(ARG_PRODUCT);
+            orderSelectionValue = (OrderSelectionValue)getArguments().getSerializable( ARG_ORDER_SELECTION_VALUE );
         }
+
+        String[] sizeArray = getResources().getStringArray(R.array.sizesValue);
+        sizeBeanList = new ArrayList<SizeBean>();
+        for( String size : sizeArray )
+        {
+            SizeBean sizeBean = new SizeBean();
+            sizeBean.setSize( size );
+            sizeBeanList.add( sizeBean );
+        }
+
+        sizeAdapter = new SizeAdapter( sizeBeanList , step1Listener , orderSelectionValue.getSize() );
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentOrderFormBinding.inflate( inflater ,container , false  );
-        return binding.getRoot();
+
+        if( product != null )
+            return binding.getRoot();
+        else
+            return new View( getContext() );
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if( product == null )
+            return;
 
         binding.setProduct( product );
         binding.imgProduct.setImageResource( product.image );
@@ -130,9 +166,31 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
 
         LayoutFormOrderStep1Binding layoutFormOrderStep1Binding = binding.layoutStep1;
         initStep1( layoutFormOrderStep1Binding );
+
+        if( orderSelectionValue != null && orderSelectionValue.getSize() != 0 )
+        {
+            TextView sizeTextView = new TextView( getContext() , null , R.attr.selectedTextStyle );
+            sizeTextView.setText( orderSelectionValue.getSize() + "" );
+
+            int width = (int)getResources().getDimension( R.dimen.product_color_size );
+            int height = (int)getResources().getDimension( R.dimen.product_color_size );
+            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams( width , height );
+
+            View txtLabelSizeView = binding.txtLabelSize;
+            layoutParams.topToTop = txtLabelSizeView.getId();
+            layoutParams.bottomToBottom = txtLabelSizeView.getId();
+            layoutParams.startToEnd = txtLabelSizeView.getId();
+            layoutParams.setMargins( (int)getResources().getDimension( R.dimen.spacing_medium ) , 0 , 0 , 0);
+
+            sizeTextView.setLayoutParams( layoutParams );
+
+            ((ViewGroup)binding.frameLayout).addView( sizeTextView );
+
+            sizeclonedViewList.add( sizeTextView );
+        }
     }
 
-    private void initStep2( LayoutFormOrderStep2Binding layoutFormOrderStep2Binding )
+    private void initStep2(LayoutFormOrderStep2Binding layoutFormOrderStep2Binding )
     {
         binding.txtAction.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,142 +206,142 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
 
         binding.txtLabelColour.setText( getResources().getString( R.string.txt_label_time ) );
 
-        Step2Listener step2Listener = new Step2Listener() {
-            @Override
-            public void onDateSelected(final View v) {
-
-                final View copiedView = duplicateView( v , R.attr.selectedTextStyleNoStyle );
-
-                if( copiedView == null )
-                    return;
-
-                ((ViewGroup)binding.frameLayout).addView( copiedView );
-
-                final View view = binding.txtLabelSize;
-
-                copiedView.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        v.setSelected( true );
-
-                        TransitionSet transitionSet = new TransitionSet();
-                        selectedViewTransition.addTarget( copiedView );
-
-                        if( dateClonedViewList != null && dateClonedViewList.size() >= 1 ) {
-                            Fade fade = new Fade();
-                            fade.setInterpolator( new AccelerateInterpolator() );
-                            fade.setDuration(100);
-                            for( View dateClonedView : dateClonedViewList )
-                            {
-                                if( dateClonedView.getVisibility() == View.VISIBLE )
-                                    fade.addTarget( dateClonedView );
-
-                                fade.addListener(new TransitionListenerAdapter() {
-                                    @Override
-                                    public void onTransitionEnd(@NonNull Transition transition) {
-                                        for( View targetView : transition.getTargets() ) {
-                                            ((ViewGroup) binding.frameLayout).removeView(targetView);
-                                        }
-                                    }
-                                });
-                            }
-                            transitionSet.addTransition( fade );
-                        }
-                        transitionSet.addTransition( selectedViewTransition );
-
-                        TransitionManager.beginDelayedTransition( (ViewGroup) binding.getRoot() , transitionSet );
-
-                        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)copiedView.getLayoutParams();
-                        layoutParams.topToTop = view.getId();
-                        layoutParams.bottomToBottom = view.getId();
-                        layoutParams.startToEnd = view.getId();
-                        layoutParams.setMargins( (int)getResources().getDimension( R.dimen.spacing_medium ) , 0 , 0 , 0);
-                        copiedView.setLayoutParams( layoutParams );
-
-                        if( dateClonedViewList != null && dateClonedViewList.size() >= 1 ) {
-                            for( View dateSlonedView : dateClonedViewList )
-                            {
-                                if( dateSlonedView.getVisibility() == View.VISIBLE )
-                                    dateSlonedView.setVisibility( View.GONE );
-                            }
-                        }
-
-                        dateClonedViewList.add( copiedView );
-                    }
-                } );
-
-            }
-
-            @Override
-            public void onTimeSelected(View v)
-            {
-
-                final View copiedView = duplicateView( v , R.attr.selectedTextStyleNoStyle );
-
-                if( copiedView == null )
-                    return;
-
-                ((ViewGroup)binding.frameLayout).addView( copiedView );
-
-                //1.Get Target View
-                //2.Run Transaction Animation
-                final View view = binding.txtLabelColour;
-
-                copiedView.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-
-                        TransitionSet transitionSet = new TransitionSet();
-                        selectedViewTransition.addTarget( copiedView );
-
-                        if( timeClonedViewList != null && timeClonedViewList.size() >= 1 ) {
-                            Fade fade = new Fade();
-                            fade.setInterpolator( new AccelerateInterpolator() );
-                            fade.setDuration(100);
-                            for( View timeClonedView : timeClonedViewList )
-                            {
-                                if( timeClonedView.getVisibility() == View.VISIBLE )
-                                    fade.addTarget( timeClonedView );
-
-                                fade.addListener(new TransitionListenerAdapter() {
-                                    @Override
-                                    public void onTransitionEnd(@NonNull Transition transition) {
-                                        for( View targetView : transition.getTargets() ) {
-                                            ((ViewGroup) binding.frameLayout).removeView(targetView);
-                                        }
-                                    }
-                                });
-                            }
-                            transitionSet.addTransition( fade );
-                        }
-                        transitionSet.addTransition( selectedViewTransition );
-
-
-                        TransitionManager.beginDelayedTransition( (ViewGroup) binding.getRoot() , transitionSet );
-
-                        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)copiedView.getLayoutParams();
-                        layoutParams.topToTop = view.getId();
-                        layoutParams.bottomToBottom = view.getId();
-                        layoutParams.startToEnd = view.getId();
-                        layoutParams.setMargins( (int)getResources().getDimension( R.dimen.spacing_medium ) , 0 , 0 , 0);
-                        copiedView.setLayoutParams( layoutParams );
-
-                        if( timeClonedViewList != null && timeClonedViewList.size() >= 1 ) {
-                            for( View timeClonedView : timeClonedViewList )
-                            {
-                                if( timeClonedView.getVisibility() == View.VISIBLE )
-                                    timeClonedView.setVisibility( View.GONE );
-                            }
-                        }
-
-                        timeClonedViewList.add( copiedView );
-                    }
-                } );
-
-            }
-        };
+//        Step2Listener step2Listener = new Step2Listener() {
+//            @Override
+//            public void onDateSelected(final View v) {
+//
+//                final View copiedView = duplicateView( v , R.attr.selectedTextStyleNoStyle );
+//
+//                if( copiedView == null )
+//                    return;
+//
+//                ((ViewGroup)binding.frameLayout).addView( copiedView );
+//
+//                final View view = binding.txtLabelSize;
+//
+//                copiedView.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                        v.setSelected( true );
+//
+//                        TransitionSet transitionSet = new TransitionSet();
+//                        selectedViewTransition.addTarget( copiedView );
+//
+//                        if( dateClonedViewList != null && dateClonedViewList.size() >= 1 ) {
+//                            Fade fade = new Fade();
+//                            fade.setInterpolator( new AccelerateInterpolator() );
+//                            fade.setDuration(100);
+//                            for( View dateClonedView : dateClonedViewList )
+//                            {
+//                                if( dateClonedView.getVisibility() == View.VISIBLE )
+//                                    fade.addTarget( dateClonedView );
+//
+//                                fade.addListener(new TransitionListenerAdapter() {
+//                                    @Override
+//                                    public void onTransitionEnd(@NonNull Transition transition) {
+//                                        for( View targetView : transition.getTargets() ) {
+//                                            ((ViewGroup) binding.frameLayout).removeView(targetView);
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                            transitionSet.addTransition( fade );
+//                        }
+//                        transitionSet.addTransition( selectedViewTransition );
+//
+//                        TransitionManager.beginDelayedTransition( (ViewGroup) binding.getRoot() , transitionSet );
+//
+//                        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)copiedView.getLayoutParams();
+//                        layoutParams.topToTop = view.getId();
+//                        layoutParams.bottomToBottom = view.getId();
+//                        layoutParams.startToEnd = view.getId();
+//                        layoutParams.setMargins( (int)getResources().getDimension( R.dimen.spacing_medium ) , 0 , 0 , 0);
+//                        copiedView.setLayoutParams( layoutParams );
+//
+//                        if( dateClonedViewList != null && dateClonedViewList.size() >= 1 ) {
+//                            for( View dateSlonedView : dateClonedViewList )
+//                            {
+//                                if( dateSlonedView.getVisibility() == View.VISIBLE )
+//                                    dateSlonedView.setVisibility( View.GONE );
+//                            }
+//                        }
+//
+//                        dateClonedViewList.add( copiedView );
+//                    }
+//                } );
+//
+//            }
+//
+//            @Override
+//            public void onTimeSelected(View v)
+//            {
+//
+//                final View copiedView = duplicateView( v , R.attr.selectedTextStyleNoStyle );
+//
+//                if( copiedView == null )
+//                    return;
+//
+//                ((ViewGroup)binding.frameLayout).addView( copiedView );
+//
+//                //1.Get Target View
+//                //2.Run Transaction Animation
+//                final View view = binding.txtLabelColour;
+//
+//                copiedView.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//
+//                        TransitionSet transitionSet = new TransitionSet();
+//                        selectedViewTransition.addTarget( copiedView );
+//
+//                        if( timeClonedViewList != null && timeClonedViewList.size() >= 1 ) {
+//                            Fade fade = new Fade();
+//                            fade.setInterpolator( new AccelerateInterpolator() );
+//                            fade.setDuration(100);
+//                            for( View timeClonedView : timeClonedViewList )
+//                            {
+//                                if( timeClonedView.getVisibility() == View.VISIBLE )
+//                                    fade.addTarget( timeClonedView );
+//
+//                                fade.addListener(new TransitionListenerAdapter() {
+//                                    @Override
+//                                    public void onTransitionEnd(@NonNull Transition transition) {
+//                                        for( View targetView : transition.getTargets() ) {
+//                                            ((ViewGroup) binding.frameLayout).removeView(targetView);
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                            transitionSet.addTransition( fade );
+//                        }
+//                        transitionSet.addTransition( selectedViewTransition );
+//
+//
+//                        TransitionManager.beginDelayedTransition( (ViewGroup) binding.getRoot() , transitionSet );
+//
+//                        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)copiedView.getLayoutParams();
+//                        layoutParams.topToTop = view.getId();
+//                        layoutParams.bottomToBottom = view.getId();
+//                        layoutParams.startToEnd = view.getId();
+//                        layoutParams.setMargins( (int)getResources().getDimension( R.dimen.spacing_medium ) , 0 , 0 , 0);
+//                        copiedView.setLayoutParams( layoutParams );
+//
+//                        if( timeClonedViewList != null && timeClonedViewList.size() >= 1 ) {
+//                            for( View timeClonedView : timeClonedViewList )
+//                            {
+//                                if( timeClonedView.getVisibility() == View.VISIBLE )
+//                                    timeClonedView.setVisibility( View.GONE );
+//                            }
+//                        }
+//
+//                        timeClonedViewList.add( copiedView );
+//                    }
+//                } );
+//
+//            }
+//        };
 
         layoutFormOrderStep2Binding.setListener( step2Listener );
 
@@ -291,8 +349,15 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
 
     private void initSizeRecycler(RecyclerView sizeRecycler)
     {
-        String[] sizeArray = getResources().getStringArray(R.array.sizesValue);
-        sizeRecycler.setAdapter(new SizeAdapter(Arrays.asList( sizeArray ) , step1Listener ));
+//        String[] sizeArray = getResources().getStringArray(R.array.sizesValue);
+//        List<SizeBean> sizeBeanList = new ArrayList<SizeBean>();
+//        for( String size : sizeArray )
+//        {
+//            SizeBean sizeBean = new SizeBean();
+//            sizeBean.setSize( size );
+//            sizeBeanList.add( sizeBean );
+//        }
+        sizeRecycler.setAdapter( sizeAdapter );
 
         LinearLayoutManager manager = new LinearLayoutManager(this.getContext() );
         //设置为横向滑动
@@ -330,6 +395,8 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
                 colorclonedViewList.clear();
 
                 initStep2( binding.layoutStep2 );
+
+                orderSelectionValue.setSteps(STEPS.STEP2);
             }
         });
 
@@ -639,6 +706,14 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
             if( copiedView == null )
                 return;
 
+            for( SizeBean sizeBean : sizeBeanList )
+            {
+                if( sizeBean.getSize().equalsIgnoreCase( ((TextView) v).getText().toString() ) )
+                    sizeBean.setSelected( true );
+                else
+                    sizeBean.setSelected( false );
+            }
+
 //                for( Iterator it = sizeclonedViewList.iterator() ; it.hasNext() ; ) {
 //                    View sizeclonedView = (View)it.next();
 //                    if( sizeclonedView.getVisibility() == View.GONE ) {
@@ -647,6 +722,7 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
 //                    }
 //                }
 
+            orderSelectionValue.setSize( Integer.parseInt(((TextView)v).getText().toString()) );
             ((ViewGroup)binding.frameLayout).addView( copiedView );
 
             final View view = binding.txtLabelSize;
@@ -655,13 +731,26 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
                 @Override
                 public void run() {
 
-                    if( lastSizeSelected != null )
-                    {
-                        lastSizeSelected.setSelected( false );
-                    }
+                    sizeAdapter.notifyDataSetChanged();
 
-                    lastSizeSelected = v;
-                    v.setSelected( true );
+//                    Log.i(  "onSizeSelected" , "lastSizeSelected1-" + ( lastSizeSelected==null?"":((TextView) lastSizeSelected).getText().toString() ) );
+//
+//                    if( lastSizeSelected != null )
+//                    {
+//                        lastSizeSelected.setSelected( false );
+//                        for( SizeBean sizeBean : sizeBeanList )
+//                        {
+//                            if( sizeBean.getSize().equalsIgnoreCase( ((TextView) lastSizeSelected).getText().toString() ) )
+//                            {
+//                                sizeBean.setSelected( false );
+//                            }
+//                        }
+//                    }
+//
+//                    lastSizeSelected = v;
+//                    v.setSelected( true );
+//
+//                    Log.i(  "onSizeSelected" , "lastSizeSelected2-" + ( lastSizeSelected==null?"":((TextView) lastSizeSelected).getText().toString() ) );
 
                     TransitionSet transitionSet = new TransitionSet();
                     selectedViewTransition.addTarget( copiedView );
@@ -779,6 +868,143 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
         }
     };
 
+    Step2Listener step2Listener = new Step2Listener() {
+        @Override
+        public void onDateSelected(final View v) {
+
+            final View copiedView = duplicateView( v , R.attr.selectedTextStyleNoStyle );
+
+            if( copiedView == null )
+                return;
+
+            ((ViewGroup)binding.frameLayout).addView( copiedView );
+
+            final View view = binding.txtLabelSize;
+
+            copiedView.post(new Runnable() {
+                @Override
+                public void run() {
+
+                    v.setSelected( true );
+
+                    TransitionSet transitionSet = new TransitionSet();
+                    selectedViewTransition.addTarget( copiedView );
+
+                    if( dateClonedViewList != null && dateClonedViewList.size() >= 1 ) {
+                        Fade fade = new Fade();
+                        fade.setInterpolator( new AccelerateInterpolator() );
+                        fade.setDuration(100);
+                        for( View dateClonedView : dateClonedViewList )
+                        {
+                            if( dateClonedView.getVisibility() == View.VISIBLE )
+                                fade.addTarget( dateClonedView );
+
+                            fade.addListener(new TransitionListenerAdapter() {
+                                @Override
+                                public void onTransitionEnd(@NonNull Transition transition) {
+                                    for( View targetView : transition.getTargets() ) {
+                                        ((ViewGroup) binding.frameLayout).removeView(targetView);
+                                    }
+                                }
+                            });
+                        }
+                        transitionSet.addTransition( fade );
+                    }
+                    transitionSet.addTransition( selectedViewTransition );
+
+                    TransitionManager.beginDelayedTransition( (ViewGroup) binding.getRoot() , transitionSet );
+
+                    ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)copiedView.getLayoutParams();
+                    layoutParams.topToTop = view.getId();
+                    layoutParams.bottomToBottom = view.getId();
+                    layoutParams.startToEnd = view.getId();
+                    layoutParams.setMargins( (int)getResources().getDimension( R.dimen.spacing_medium ) , 0 , 0 , 0);
+                    copiedView.setLayoutParams( layoutParams );
+
+                    if( dateClonedViewList != null && dateClonedViewList.size() >= 1 ) {
+                        for( View dateSlonedView : dateClonedViewList )
+                        {
+                            if( dateSlonedView.getVisibility() == View.VISIBLE )
+                                dateSlonedView.setVisibility( View.GONE );
+                        }
+                    }
+
+                    dateClonedViewList.add( copiedView );
+                }
+            } );
+
+        }
+
+        @Override
+        public void onTimeSelected(View v)
+        {
+
+            final View copiedView = duplicateView( v , R.attr.selectedTextStyleNoStyle );
+
+            if( copiedView == null )
+                return;
+
+            ((ViewGroup)binding.frameLayout).addView( copiedView );
+
+            //1.Get Target View
+            //2.Run Transaction Animation
+            final View view = binding.txtLabelColour;
+
+            copiedView.post(new Runnable() {
+                @Override
+                public void run() {
+
+
+                    TransitionSet transitionSet = new TransitionSet();
+                    selectedViewTransition.addTarget( copiedView );
+
+                    if( timeClonedViewList != null && timeClonedViewList.size() >= 1 ) {
+                        Fade fade = new Fade();
+                        fade.setInterpolator( new AccelerateInterpolator() );
+                        fade.setDuration(100);
+                        for( View timeClonedView : timeClonedViewList )
+                        {
+                            if( timeClonedView.getVisibility() == View.VISIBLE )
+                                fade.addTarget( timeClonedView );
+
+                            fade.addListener(new TransitionListenerAdapter() {
+                                @Override
+                                public void onTransitionEnd(@NonNull Transition transition) {
+                                    for( View targetView : transition.getTargets() ) {
+                                        ((ViewGroup) binding.frameLayout).removeView(targetView);
+                                    }
+                                }
+                            });
+                        }
+                        transitionSet.addTransition( fade );
+                    }
+                    transitionSet.addTransition( selectedViewTransition );
+
+
+                    TransitionManager.beginDelayedTransition( (ViewGroup) binding.getRoot() , transitionSet );
+
+                    ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams)copiedView.getLayoutParams();
+                    layoutParams.topToTop = view.getId();
+                    layoutParams.bottomToBottom = view.getId();
+                    layoutParams.startToEnd = view.getId();
+                    layoutParams.setMargins( (int)getResources().getDimension( R.dimen.spacing_medium ) , 0 , 0 , 0);
+                    copiedView.setLayoutParams( layoutParams );
+
+                    if( timeClonedViewList != null && timeClonedViewList.size() >= 1 ) {
+                        for( View timeClonedView : timeClonedViewList )
+                        {
+                            if( timeClonedView.getVisibility() == View.VISIBLE )
+                                timeClonedView.setVisibility( View.GONE );
+                        }
+                    }
+
+                    timeClonedViewList.add( copiedView );
+                }
+            } );
+
+        }
+    };
+
 
     public interface Step1Listener {
         void onSizeSelected(View v);
@@ -799,5 +1025,23 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
         public String time = "";
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 }

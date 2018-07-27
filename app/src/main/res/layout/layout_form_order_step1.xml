@@ -10,6 +10,10 @@
             type="com.test1.OrderDialogFragment.Step1Listener" />
     </data>
 
+    <!--<android.support.v4.widget.NestedScrollView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content">-->
+
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -104,4 +108,6 @@
             app:layout_constraintTop_toBottomOf="@+id/txt_label_size" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <!--</android.support.v4.widget.NestedScrollView>-->
 </layout>

@@ -3,6 +3,6 @@
     <attr name="selectedTextStyle" format="reference" />
     <attr name="selectedTextStyleNoStyle" format="reference" />
 
-    <bool name="isTabletOrLand">false</bool>
+    <bool name="isTabletOrLand">true</bool>
 
 </resources>

@@ -8,20 +8,26 @@ import android.view.ViewGroup;
 
 import com.test1.OrderDialogFragment;
 import com.test1.databinding.SizeBinding;
+import com.test1.model.SizeBean;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SizeAdapter extends RecyclerView.Adapter<SizeAdapter.SizeViewHolder>
 {
-    private List<String> sizeList = new ArrayList<String>();
+    private List<SizeBean> sizeBeanList = new ArrayList<SizeBean>();
 
     private OrderDialogFragment.Step1Listener step1Listener;
 
-    public SizeAdapter( List<String> sizeList , OrderDialogFragment.Step1Listener step1Listener )
+    private int selectedSize;
+
+
+
+    public SizeAdapter(List<SizeBean> sizeBeanList , OrderDialogFragment.Step1Listener step1Listener , int selectedSize )
     {
-        this.sizeList = sizeList;
+        this.sizeBeanList = sizeBeanList;
         this.step1Listener = step1Listener;
+        this.selectedSize = selectedSize;
     }
 
     @NonNull
@@ -35,12 +41,19 @@ public class SizeAdapter extends RecyclerView.Adapter<SizeAdapter.SizeViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SizeViewHolder holder, int position) {
-        holder.binding( sizeList.get( position ) );
+        holder.binding( sizeBeanList.get( position ).getSize() );
+
+        holder.sizeBinding.txtSize1.setSelected( false );
+
+        if( sizeBeanList.get( position ).isSelected() )
+        {
+            holder.sizeBinding.txtSize1.setSelected( true );
+        }
     }
 
     @Override
     public int getItemCount() {
-        return sizeList.size();
+        return sizeBeanList.size();
     }
 
     class SizeViewHolder extends RecyclerView.ViewHolder
