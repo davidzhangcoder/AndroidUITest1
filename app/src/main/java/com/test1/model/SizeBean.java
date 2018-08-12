@@ -1,6 +1,8 @@
 package com.test1.model;
 
-public class SizeBean
+import java.io.Serializable;
+
+public class SizeBean implements Serializable
 {
 
     private String size;

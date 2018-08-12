@@ -26,5 +26,6 @@
     <string name="txt_label_conf_size">Size: %1d</string>
     <string name="txt_label_conf_time">Time: %1s</string>
     <string name="txt_label_conf_date">Date: %1s</string>
+    <string name="sharedElementProduct">SharedElementProduct</string>
 
 </resources>

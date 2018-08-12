@@ -35,6 +35,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         holder.bind( products.get( position ) );
+
+        holder.binding.imgProduct.setTransitionName( String.valueOf(position) + "_image" );
     }
 
     @Override
@@ -42,7 +44,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         return products.size();
     }
 
-    class ProductViewHolder extends RecyclerView.ViewHolder
+    public class ProductViewHolder extends RecyclerView.ViewHolder
     {
         private ItemProductBinding binding;
 
@@ -79,5 +81,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     : context.getResources().getDimensionPixelOffset(R.dimen.product_large_height);
         }
 
+        public ItemProductBinding getBinding() {
+            return binding;
+        }
     }
 }

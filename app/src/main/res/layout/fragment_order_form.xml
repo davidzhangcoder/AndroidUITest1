@@ -16,6 +16,7 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/img_product"
+            android:transitionName="@string/sharedElementProduct"
             android:layout_width="@dimen/img_form_size"
             android:layout_height="@dimen/img_form_size"
             android:layout_marginLeft="@dimen/spacing_huge"

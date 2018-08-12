@@ -19,15 +19,10 @@ public class SizeAdapter extends RecyclerView.Adapter<SizeAdapter.SizeViewHolder
 
     private OrderDialogFragment.Step1Listener step1Listener;
 
-    private int selectedSize;
-
-
-
-    public SizeAdapter(List<SizeBean> sizeBeanList , OrderDialogFragment.Step1Listener step1Listener , int selectedSize )
+    public SizeAdapter(List<SizeBean> sizeBeanList , OrderDialogFragment.Step1Listener step1Listener)
     {
         this.sizeBeanList = sizeBeanList;
         this.step1Listener = step1Listener;
-        this.selectedSize = selectedSize;
     }
 
     @NonNull
