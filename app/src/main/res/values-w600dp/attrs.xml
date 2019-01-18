@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <attr name="selectedTextStyle" format="reference" />
-    <attr name="selectedTextStyleNoStyle" format="reference" />
-
-    <bool name="isTabletOrLand">true</bool>
-
-</resources>

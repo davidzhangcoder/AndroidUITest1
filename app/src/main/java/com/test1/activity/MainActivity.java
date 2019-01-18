@@ -88,21 +88,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemSelected(RecyclerView.ViewHolder holder, int position)
             {
-//                boolean isTabletOrLand = getResources().getBoolean(R.bool.isTabletOrLand);
 
                 if( !isTabletOrLand )
                 {
-
-//                    BottomSheetDialog dialog = new BottomSheetDialog( MainActivity.this );
-//                    View view = getLayoutInflater().inflate(R.layout.layout_bottom_sheet_dialog, null);
-//
-//
-//                    dialog.setContentView(view);
-//                    dialog.show();
-
                     orderDialogFragment = OrderDialogFragment.newInstance(fakeProducts.get(position),orderSelectionValue);
                     orderDialogFragment.show(getSupportFragmentManager(), null);
-
                 }
                 else {
 
@@ -118,26 +108,6 @@ public class MainActivity extends AppCompatActivity
                     int left = location[0];
                     int top = location[1];
                     orderDialogFragment = OrderDialogFragment.newInstance(fakeProducts.get(position),orderSelectionValue,width,height,left,top);
-
-//                    TransitionSet enterTransitionSet = new TransitionSet();
-//                    enterTransitionSet.addTransition(new ChangeBounds());
-//                    enterTransitionSet.addTransition(new ChangeTransform());
-//                    enterTransitionSet.addTransition(new ChangeImageTransform());
-//                    enterTransitionSet.setDuration( 1000 );
-//                    orderDialogFragment.setSharedElementEnterTransition(enterTransitionSet);
-//
-//                    Fade fade = new Fade();
-//                    fade.setDuration(1000);
-//                     fade.setStartDelay(1000);
-
-//                    orderDialogFragment.setEnterTransition( fade );
-
-//                    mainLeftPanelFragment.setExitTransition( fade );
-//                    fragmentTransaction.remove(mainLeftPanelFragment);
-
-
-//                    fragmentTransaction.addSharedElement(productViewHolder.getBinding().imgProduct
-//                            , getResources().getString(R.string.sharedElementProduct) );
 
                     fragmentTransaction.replace(R.id.fragment, orderDialogFragment);
                     fragmentTransaction.commit();

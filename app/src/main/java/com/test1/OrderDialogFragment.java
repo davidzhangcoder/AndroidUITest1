@@ -148,10 +148,14 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
         if (getArguments() != null) {
             product = (Product) getArguments().getSerializable(ARG_PRODUCT);
             orderSelectionValue = (OrderSelectionValue)getArguments().getSerializable( ARG_ORDER_SELECTION_VALUE );
-            mThumbWidth = (int) getArguments().getSerializable(ARG_WIDTH);
-            mThumbHeight = (int) getArguments().getSerializable(ARG_HEIGHT);
-            mThumbLeft = (int) getArguments().getSerializable(ARG_LEFT);
-            mThumbTop = (int) getArguments().getSerializable(ARG_TOP);
+            if( getArguments().getSerializable(ARG_WIDTH) != null )
+                mThumbWidth = (int) getArguments().getSerializable(ARG_WIDTH);
+            if( getArguments().getSerializable(ARG_HEIGHT) != null )
+                mThumbHeight = (int) getArguments().getSerializable(ARG_HEIGHT);
+            if( getArguments().getSerializable(ARG_LEFT) != null )
+                mThumbLeft = (int) getArguments().getSerializable(ARG_LEFT);
+            if( getArguments().getSerializable(ARG_TOP) != null )
+                mThumbTop = (int) getArguments().getSerializable(ARG_TOP);
         }
 
         String[] sizeArray = getResources().getStringArray(R.array.sizesValue);
@@ -177,12 +181,6 @@ public class OrderDialogFragment extends BottomSheetDialogFragment {
 
         if( isTabletOrLand ) {
             final View imageView = binding.imgProduct;
-
-            //test
-//            mThumbLeft=100;
-//            mThumbTop=100;
-//            mThumbWidth=100;
-//            mThumbHeight=100;
 
             imageView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
 
