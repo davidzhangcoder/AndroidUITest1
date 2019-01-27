@@ -1,0 +1,104 @@
+﻿docker pull daocloud.io/library/centos:centos7
+
+docker run -h master --dns=61.139.2.69 -it daocloud.io/library/centos:centos7
+-h	master	??hostname
+--dns	61.139.2.69	??DNS,????8.8.8.8,????...
+-it		???????
+
+
+C:\Working\files\test\hadoop\apache-ant-1.9.13\bin\ant jar -Dversion=2.6.5 -Dhadoop.version=2.6.5 -Declipse.home=C:\Working\softwares\eclipse-jee-luna-SR2-win32-x86_64 -Dhadoop.home=C:\Working\files\test\hadoop\hadoop-2.6.5
+
+C:\Program Files\Java\jdk1.8.0_40
+
+
+ANT_HOME=C:\Working\files\test\hadoop\apache-ant-1.9.13
+
+set PATH=%ANT_HOME%\bin;%PATH%
+JAVA_HOME=C:\Program Files\Java\jdk1.8.0_40
+set JAVA_HOME=C:\Working\softwares\Java\jdk1.8.0_40
+
+set HADOOP_HOME=C:\Working\files\test\hadoop\hadoop-2.6.5
+
+set PATH=%ANT_HOME%\bin;%HADOOP_HOME%\bin;%PATH%
+set PATH=%HADOOP_HOME%\bin;%ANT_HOME%\bin;%PATH%
+
+hdfs namenode -format
+
+https://quip.com/YehSAR4qnGqB
+https://quip.com/85VvAGqcb0Lg
+
+  <property>
+     <name>mapreduce.framework.name</name>
+     <value>yarn</value>
+  </property>
+
+(1)Hadoop - working
+set ANT_HOME=C:\Working\files\test\hadoop\apache-ant-1.9.13
+set JAVA_HOME=C:\Working\softwares\Java\jdk1.8.0_40
+set HADOOP_HOME=C:\Working\files\test\hadoop\hadoop-2.7.6
+set PATH=%HADOOP_HOME%\bin;%ANT_HOME%\bin;%JAVA_HOME%\bin;%PATH%
+hdfs namenode -format
+
+# 查看hdfs根目录
+hdfs dfs -ls /
+
+# 创建目录
+hdfs dfs -mkdir /input
+
+（2）Gradle
+gradlew build -m ( -m means Dry Run, ????????????????????? )
+gradlew task
+gradle -q projects ????????? -q means quiet, Log errors only
+gradle dependencies ??????????
+gradle -q dependencies api:dependencies
+gradle -q api:dependencies --configuration testCompile
+gradle -q dependencies app:dependencies --configuration testCompile
+
+gradlew :app:dependencies --configuration compile （其中 configuration compile 中的 compile 表示只需要打印出 编译环境下 的 依赖项）
+需要注意的一点是，在 同一个库存在 多个版本时， gradle 会自动 使用最高版本的库 应用到 所有地方，   上图中 后面带有 “(*)” 的库就表示 这个库 有被覆盖过
+
+gradle dependencies --info （ 关于其他配置类型可以通过这条命令获得 ，配置类型 是 gradle dependencies --configuration 后用到的  ）
+
+使用系统命令查看
+gradlew -q app:dependencies
+会打印所有的依赖
+
+|    +--- com.android.support:appcompat-v7:25.0.1 ()  表示顶层有同样的依赖
+
+|    --- com.android.support:support-v4:23.1.1 -> 25.0.1 ()   ->表示包冲突  但是(*)表示顶层有依赖，如果顶层的是高版本，默认使用顶层依赖
+
+
+
+（3）Docker
+docker ps 列容器
+docker pull bolingcavalry/centos7-hbase126-standalone:0.0.1 下载
+docker run --name=hbase001 -p 60010:60010 -idt bolingcavalry/centos7-hbase126-standalone:0.0.1 创建一个容器，容器名称hbase001，60010端口映射到本机
+docker exec -it hbase001 /bin/bash 进入hbase001容器
+/usr/local/work/hbase/bin/start-hbase.sh 启动hbase服务
+hbase shell 进入HBase的命令行模式
+create 'student','id','info'
+ist就能列出新增的student表，输入scan ‘student’可以列出student表的内容
+put 'student','1001','info:name','Tom'
+put 'student','1001','info:age','16'
+get 'student','1001'
+输入http://localhost:60010可以看到HBase的基本情况
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
